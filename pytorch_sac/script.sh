@@ -1,0 +1,1 @@
+xvfb-run -a python3 train.py env=humanoid_stand

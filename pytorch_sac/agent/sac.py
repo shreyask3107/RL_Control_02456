@@ -8,14 +8,15 @@ from agent import Agent
 import utils
 
 import hydra
+import os
 
 
 class SACAgent(Agent):
     """SAC algorithm."""
-    def __init__(self, obs_dim, action_dim, action_range, device, critic_cfg,
+    def __init__(self, obs_dim, action_dim, action_range, work_dir, device, critic_cfg,
                  actor_cfg, discount, init_temperature, alpha_lr, alpha_betas,
                  actor_lr, actor_betas, actor_update_frequency, critic_lr,
-                 critic_betas, critic_tau, critic_target_update_frequency,
+                 critic_betas, critic_tau, critic_target_update_frequency, save_freq,
                  batch_size, learnable_temperature):
         super().__init__()
 
@@ -27,6 +28,9 @@ class SACAgent(Agent):
         self.critic_target_update_frequency = critic_target_update_frequency
         self.batch_size = batch_size
         self.learnable_temperature = learnable_temperature
+        self.work_dir = work_dir
+        self.save_freq = save_freq
+        os.mkdir(os.path.join(self.work_dir, 'model'))
 
         self.critic = hydra.utils.instantiate(critic_cfg).to(self.device)
         self.critic_target = hydra.utils.instantiate(critic_cfg).to(
@@ -142,3 +146,10 @@ class SACAgent(Agent):
         if step % self.critic_target_update_frequency == 0:
             utils.soft_update_params(self.critic, self.critic_target,
                                      self.critic_tau)
+        
+        if step % self.save_freq == 0:
+            torch.save(self.critic, os.path.join(self.work_dir, 'model', f'{step}_critic.pt'))
+            torch.save(self.critic_target, os.path.join(self.work_dir, 'model', f'{step}_critic_target.pt'))
+            torch.save(self.actor, os.path.join(self.work_dir, 'model', f'{step}_actor.pt'))
+            print('Model Saved')
+

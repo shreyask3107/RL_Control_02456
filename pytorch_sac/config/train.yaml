@@ -6,7 +6,7 @@ env: cheetah_run
 # this needs to be specified manually
 experiment: test_exp
 
-num_train_steps: 1e7
+num_train_steps: 1e6
 replay_buffer_capacity: ${num_train_steps}
 
 num_seed_steps: 5000
