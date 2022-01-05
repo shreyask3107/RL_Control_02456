@@ -23,6 +23,9 @@ agent:
     save_freq: 100000
     batch_size: 1024
     learnable_temperature: true
+    pretrain: False
+    pretrain_dir: '/home/ubuntu/RL_Control_02456/pytorch_sac/exp/2021.11.30/2122_sac_test_exp'
+    pretrain_steps: 900000
     
 double_q_critic:
   class: agent.critic.DoubleQCritic
