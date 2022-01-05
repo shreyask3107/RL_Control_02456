@@ -1,128 +1,28 @@
-# 02456 Deep Learning Course Project
-
-# DMControl Generalization Benchmark
-
-**[07/01/2021] Added SVEA, DrQ, Distracting Control Suite, and reduced memory consumption by 5x**
-
-
-Benchmark for generalization in continuous control from pixels, based on [DMControl](https://github.com/deepmind/dm_control).
-
-Also contains official implementations of
-
-**Stabilizing Deep Q-Learning with ConvNets and Vision Transformers under Data Augmentation** (SVEA)<br/>
-[Nicklas Hansen](https://nicklashansen.github.io), [Hao Su](https://cseweb.ucsd.edu/~haosu), [Xiaolong Wang](https://xiaolonw.github.io)
-
-[[Paper]](https://arxiv.org/abs/2107.00644) [[Webpage]](https://nicklashansen.github.io/SVEA)
-
-and
-
-**Generalization in Reinforcement Learning by Soft Data Augmentation** (SODA)<br/>
-[Nicklas Hansen](https://nicklashansen.github.io), [Xiaolong Wang](https://xiaolonw.github.io)
-
-[[Paper]](https://arxiv.org/abs/2011.13389) [[Webpage]](https://nicklashansen.github.io/SODA)
-
-
-See [this repository](https://github.com/nicklashansen/svea-vit) for SVEA implemented using Vision Transformers.
-
-
-## Test environments
-
-The DMControl Generalization Benchmark provides two distinct benchmarks for visual generalization, *random colors* and *video backgrounds*:
-
-![environment samples](figures/environments.png)
-
-Both benchmarks are offered in *easy* and *hard* variants. Samples are shown below.
-
-**color_easy**<br/>
-![color_easy](figures/color_easy.png)
-
-**color_hard**<br/>
-![color_hard](figures/color_hard.png)
-
-**video_easy**<br/>
-![video_easy](figures/video_easy.png)
-
-**video_hard**<br/>
-![video_hard](figures/video_hard.png)
-
-This codebase also integrates a set of challenging test environments from the [Distracting Control Suite](https://arxiv.org/abs/2101.02722) (DistractingCS). Our implementation of DistractingCS includes environments of 8 gradually increasing randomization intensities. Note that our implementation of DistractingCS is *not* equivalent to the original DistractingCS benchmark -- they differ in important ways: (1) we evaluate at a different set of intensities (and number of videos) that more closely matches performance of current algorithms; (2) we reduce randomization update frequency by a factor of 2 to account for frame skip (action repeat); (3) all Tensorflow dependencies have been replaced by PyTorch. By default, algorithms are trained for 500k frames and are continuously evaluated in both training and test environments. Environment randomization is seeded to promote reproducibility.
+# 02456 Deep Learning Course Project: Task Adaptation for Continuous Control using Deep Reinforcement Learning
 
 
 ## Algorithms
 
 This repository contains implementations of the following algorithms in a unified framework:
 
-- [SVEA (Hansen et al., 2021)](https://arxiv.org/abs/2107.00644)
-- [SODA (Hansen and Wang, 2021)](https://arxiv.org/abs/2011.13389)
-- [PAD (Hansen et al., 2020)](https://arxiv.org/abs/2007.04309)
-- [DrQ (Kostrikov et al., 2020)](https://arxiv.org/abs/2004.13649)
-- [RAD (Laskin et al., 2020)](https://arxiv.org/abs/2004.14990)
-- [CURL (Srinivas et al., 2020)](https://arxiv.org/abs/2004.04136)
-- [SAC (Haarnoja et al., 2018)](https://arxiv.org/abs/1812.05905)
+- [SVEA (Hansen et al., 2021)](https://arxiv.org/abs/2107.00644) on raw-pixels
+- [SAC + AE (Denis et al., 2020)](https://arxiv.org/abs/1910.01741) on raw-pixels
+- [SAC (Haarnoja et al., 2018)](https://arxiv.org/abs/1812.05905) on state-derived-features
 
 using standardized architectures and hyper-parameters, wherever applicable. If you want to add an algorithm, feel free to send a pull request.
 
-
-## Citation
-<a name="citation"></a>
-If you find our work useful in your research, please consider citing our work as follows:
-
-```
-@article{hansen2021stabilizing,
-  title={Stabilizing Deep Q-Learning with ConvNets and Vision Transformers under Data Augmentation},
-  author={Nicklas Hansen and Hao Su and Xiaolong Wang},
-  year={2021},
-  eprint={2107.00644},
-  archivePrefix={arXiv},
-  primaryClass={cs.LG}
-}
-```
-
-for the SVEA method, and
-
-```
-@inproceedings{hansen2021softda,
-  title={Generalization in Reinforcement Learning by Soft Data Augmentation},
-  author={Nicklas Hansen and Xiaolong Wang},
-  booktitle={International Conference on Robotics and Automation},
-  year={2021},
-}
-```
-
-for the SODA method and the DMControl Generalization Benchmark.
-
-
 ## Setup
-We assume that you have access to a GPU with CUDA >=9.2 support. All dependencies can then be installed with the following commands:
+We assume that you have access to a GPU with CUDA >=9.2 support. All dependencies for pixel related experiments can then be installed with the following commands:
 
 ```
-conda env create -f setup/conda.yml
+conda env create -f raw-pixel-input/setup/conda.yml
 conda activate dmcgb
-sh setup/install_envs.sh
+sh raw-pixel-input/setup/install_envs.sh
 ```
-
-
-## Datasets
-Part of this repository relies on external datasets. SODA uses the [Places](http://places2.csail.mit.edu/download.html) dataset for data augmentation, which can be downloaded by running
-
-```
-wget http://data.csail.mit.edu/places/places365/places365standard_easyformat.tar
-```
-
-Distracting Control Suite uses the [DAVIS](https://davischallenge.org/davis2017/code.html) dataset for video backgrounds, which can be downloaded by running
-
-```
-wget https://data.vision.ee.ethz.ch/csergi/share/davis/DAVIS-2017-trainval-480p.zip
-```
-
-You should familiarize yourself with their terms before downloading. After downloading and extracting the data, add your dataset directory to the `datasets` list in `setup/config.cfg`.
-
-The `video_easy` environment was proposed in [PAD](https://github.com/nicklashansen/policy-adaptation-during-deployment), and the `video_hard` environment uses a subset of the [RealEstate10K](https://google.github.io/realestate10k/) dataset for background rendering. All test environments (including video files) are included in this repository, namely in the `src/env/` directory.
-
 
 ## Training & Evaluation
 
-The `scripts` directory contains training and evaluation bash scripts for all the included algorithms. Alternatively, you can call the python scripts directly, e.g. for training call
+The `` directory contains training and evaluation bash scripts for all the included algorithms. Alternatively, you can call the python scripts directly, e.g. for training call
 
 ```
 python3 src/train.py \
@@ -143,13 +43,41 @@ where `ER` and `ERTEST` corresponds to the average return in the training and te
 
 ## Results
 
-We provide test results for each of the SVEA, SODA, PAD, DrQ, RAD, and CURL methods. Results for `color_hard` and `video_easy` are shown below:
-
-![soda table results](figures/results_table.png)
-
-See [our paper](https://arxiv.org/abs/2107.00644) for additional results.
 
 
-## Acknowledgements
+# Soft Actor-Critic (SAC) implementation in PyTorch
 
-We would like to thank the numerous researchers and engineers involved in work of which this work is based on. This repository is a product of our work on [SVEA](https://arxiv.org/abs/2107.00644), [SODA](https://arxiv.org/abs/2011.13389) and [PAD](https://arxiv.org/abs/2007.04309). Our SAC implementation is based on [this repository](https://github.com/denisyarats/pytorch_sac_ae), the original DMControl is available [here](https://github.com/deepmind/dm_control), and the gym wrapper for it is available [here](https://github.com/denisyarats/dmc2gym). The [Distracting Control Suite](https://arxiv.org/abs/2101.02722) environments were adapted from [this](https://github.com/google-research/google-research/tree/master/distracting_control) implementation. PAD, RAD, CURL, and DrQ baselines are based on their official implementations provided [here](https://github.com/nicklashansen/policy-adaptation-during-deployment), [here](https://github.com/MishaLaskin/rad), [here](https://github.com/MishaLaskin/curl), and [here](https://github.com/denisyarats/drq), respectively.
+This is PyTorch implementation of Soft Actor-Critic (SAC) [[ArXiv]](https://arxiv.org/abs/1812.05905).
+
+If you use this code in your research project please cite us as:
+```
+@misc{pytorch_sac,
+  author = {Yarats, Denis and Kostrikov, Ilya},
+  title = {Soft Actor-Critic (SAC) implementation in PyTorch},
+  year = {2020},
+  publisher = {GitHub},
+  journal = {GitHub repository},
+  howpublished = {\url{https://github.com/denisyarats/pytorch_sac}},
+}
+```
+
+## Requirements
+We assume you have access to a gpu that can run CUDA 9.2. Then, the simplest way to install all required dependencies is to create an anaconda environment and activate it:
+```
+conda env create -f conda_env.yml
+source activate pytorch_sac
+```
+
+## Instructions
+To train an SAC agent on the `cheetah run` task run:
+```
+python train.py env=cheetah_run
+```
+This will produce `exp` folder, where all the outputs are going to be stored including train/eval logs, tensorboard blobs, and evaluation episode videos. One can attacha tensorboard to monitor training by running:
+```
+tensorboard --logdir exp
+```
+
+## Results
+An extensive benchmarking of SAC on the DM Control Suite against D4PG. We plot an average performance of SAC over 3 seeds together with p95 confidence intervals. Importantly, we keep the hyperparameters fixed across all the tasks. Note that results for D4PG are reported after 10^8 steps and taken from the original paper.
+![Results](figures/dm_control.png)
